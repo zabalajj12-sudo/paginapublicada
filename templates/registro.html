@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear cuenta — Wanderlust</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        :root {
+            --sand: #f5ede0; --ink: #1a1410; --gold: #c9a84c; --coral: #e07a5f;
+            --cream: #fdf8f2; --muted: #8a7f74; --ocean: #3d7a8a;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif;
+            min-height: 100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem;
+            position: relative; overflow: hidden;
+        }
+
+        /* Fondo: puntos de "ruta" flotando lentamente, motivo de viaje */
+        .bg-route { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        .bg-route span {
+            position: absolute; width: 6px; height: 6px; border-radius: 50%;
+            background: var(--gold); opacity: 0.35;
+            animation: drift 14s ease-in-out infinite;
+        }
+        .bg-route span:nth-child(1) { top: 12%; left: 8%; animation-delay: 0s; }
+        .bg-route span:nth-child(2) { top: 22%; left: 85%; animation-delay: -3s; background: var(--coral); }
+        .bg-route span:nth-child(3) { top: 78%; left: 15%; animation-delay: -6s; }
+        .bg-route span:nth-child(4) { top: 85%; left: 80%; animation-delay: -9s; background: var(--ocean); }
+        .bg-route span:nth-child(5) { top: 45%; left: 92%; animation-delay: -2s; }
+        .bg-route span:nth-child(6) { top: 60%; left: 5%; animation-delay: -11s; background: var(--coral); }
+
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(14px, -18px); }
+        }
+
+        .card {
+            background: #fff; border: 1px solid rgba(201,168,76,0.2); border-radius: 20px;
+            padding: 2.5rem 2rem; max-width: 380px; width:100%;
+            box-shadow: 0 4px 40px rgba(26,20,16,0.08);
+            position: relative; z-index: 1;
+            animation: apparecer 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        @keyframes apparecer {
+            from { opacity: 0; transform: translateY(14px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .eyebrow { font-size:0.7rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--gold); display:block; text-align:center; margin-bottom:0.5rem;}
+        h1 { font-family:'Playfair Display', serif; font-size:1.8rem; text-align:center; margin-bottom:1.5rem; }
+        label { display:block; font-size:0.75rem; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:0.4rem; }
+        .form-group { margin-bottom:1.1rem; }
+        input {
+            width:100%; padding:0.75rem 1rem; border:1.5px solid rgba(26,20,16,0.12); border-radius:10px;
+            font-family:'DM Sans', sans-serif; font-size:0.95rem; outline:none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
+        button[type="submit"] {
+            width:100%; padding:0.85rem; background:var(--ink); color:var(--sand); border:none;
+            border-radius:12px; font-size:0.9rem; font-weight:500; letter-spacing:0.05em; cursor:pointer; margin-top:0.5rem;
+            transition: background 0.2s, transform 0.15s;
+        }
+        button[type="submit"]:hover { background: var(--coral); transform: translateY(-1px); }
+        button[type="submit"]:active { transform: translateY(0); }
+
+        .error {
+            background:#fdecea; color:#c0392b; padding:0.7rem 1rem; border-radius:10px; font-size:0.85rem; margin-bottom:1rem;
+            animation: sacudir 0.4s ease;
+        }
+        @keyframes sacudir {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .link-row { text-align:center; margin-top:1.2rem; font-size:0.85rem; color:var(--muted); }
+        .link-row a { color: var(--coral); text-decoration:none; font-weight:500; }
+
+        .divider {
+            display: flex; align-items: center; gap: 0.75rem; margin: 1.3rem 0;
+            color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+        }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(26,20,16,0.1); }
+
+        .google-btn-wrap { display: flex; justify-content: center; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card, .error, .bg-route span { animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-route">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="card">
+        <span class="eyebrow">✦ Wanderlust</span>
+        <h1>Crea tu cuenta</h1>
+        {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+        <div class="google-btn-wrap">
+            <div id="g_id_onload"
+                 data-client_id="{{ google_client_id }}"
+                 data-callback="manejarCredencialGoogle"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="pill"
+                 data-theme="outline"
+                 data-text="continue_with"
+                 data-size="large"
+                 data-locale="es">
+            </div>
+        </div>
+
+        <div class="divider">o con tu cuenta</div>
+
+        <form method="POST" id="loginForm">
+            <div class="form-group">
+                <label for="usuario">Usuario</label>
+                <input type="text" id="usuario" name="usuario" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" id="submitBtn">Crear cuenta →</button>
+        </form>
+        <div class="link-row">¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión</a></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', () => {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Creando cuenta...';
+        });
+
+        async function manejarCredencialGoogle(response) {
+            try {
+                const res = await fetch('/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential: response.credential })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    window.location.href = '/';
+                } else {
+                    alert(data.error || 'No se pudo iniciar sesión con Google.');
+                }
+            } catch (err) {
+                alert('Error al conectar con el servidor.');
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>
